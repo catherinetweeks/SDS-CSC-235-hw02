@@ -1,0 +1,255 @@
+---
+title: "summary_statistics"
+author: "Catherine Weeks"
+format: html
+---
+
+For this assignment I have decided to use NYC's 2015 Street Tree Census data set. I will be looking at the following variables:
+
+-   `tree_dbh`
+
+    -   This quantitative variable is the diameter of the tree at 54" above the ground (for living trees).
+
+-   `stump_diam`
+
+    -   This quantitative variable measures the stump diameter for dead tree stumps.
+
+-   `curb_loc`
+
+    -   This categorical variable states if the tree was on the curb or offset from the curb.
+
+-   `spc_common`
+
+    -   This variable stores the common name for the tree species.
+
+-   `gurads`
+
+    -   This categorical variable states whether or not a guard is present for healthy trees and if it was useful or not useful.
+
+-   `health`
+
+    -   This ordinal variable measures the perceived health of the tree on a scale from 'poor' to 'good'.
+
+-   `steward`
+
+    -   This ordinal variable indicates the number of unique signs of stewardship observed for this tree. The options are `None`, `1 or 2`, and `3 or 4`.
+
+To begin I will initialize the data:
+
+```{r}
+#Initialize data set.
+library(tidyverse)
+library(scales)
+data <- read.csv("data.csv")
+```
+
+```{r}
+#selecting only the variables I want to work with:
+data <- data |> 
+  select(tree_dbh,
+         stump_diam,
+         curb_loc,
+         spc_common,
+         guards,
+         health,
+         status,
+         steward)
+#Split the data for living and dead trees (to have a better look at stump vs regular diameter)
+alive_trees <- data |> 
+  filter(status == "Alive") #|>
+
+dead_trees <- data |> 
+  filter(status != "Alive",
+         #It looks like 0s represents N/As in some cases in this dataset.
+         stump_diam > 0)
+```
+
+**Summary Statistics**
+
+Tree Diameter
+
+```{r}
+summary(alive_trees[c("tree_dbh")])
+count(alive_trees)
+```
+
+```{r}
+ggplot(alive_trees, aes(x= tree_dbh)) + 
+  geom_histogram() + 
+  scale_y_continuous(labels = label_comma()) + 
+    labs(title = "Street Tree Diamater among Living Street Trees in NYC in 2015",
+       x = "Tree Diameter", 
+       y = "Count") +
+  theme_minimal()
+```
+
+Stump Diameter
+
+```{r}
+summary(dead_trees[c("stump_diam")])
+```
+
+```{r}
+ggplot(dead_trees, aes(x= stump_diam))+ 
+  geom_histogram()+ 
+  scale_y_continuous(labels = label_comma())+
+    labs(title = "Stump Diameter among Dead Street Trees in NYC in 2015",
+       x = "Stump Diameter (inches)", 
+       y = "Count")
+```
+
+Curb Location
+
+```{r}
+ggplot(data, aes(x= curb_loc)) + 
+  geom_bar()+ 
+  scale_y_continuous(labels = label_comma())+
+    labs(title = "Street Tree Proximity to Curb in NYC in 2015",
+       x = "Curb Proximity", 
+       y = "Count") +
+  theme_minimal()
+```
+
+Common Name
+
+```{r}
+#Most common trees
+most_common_trees <- data |> 
+  drop_na() |>
+  filter(nchar(spc_common) >= 2) |> 
+  count(spc_common, name = "count") |> 
+  arrange(desc(count))
+
+nrow(most_common_trees) # 132 different tree species
+head(most_common_trees, 10)
+
+```
+
+```{r}
+top10 <- most_common_trees |>
+  slice(1:10)
+
+df<- data.frame("other", 225945)
+names(df)<-c("spc_common","count")
+top11 <- rbind(top10, df)
+  
+
+ggplot(top11) + 
+  geom_bar(aes(x = spc_common, y = count), stat = "identity") +
+  scale_y_continuous(labels = label_comma())+
+  labs(title = "Top 10 Most Common Street Tree Species in NYC in 2015",
+       x = "Tree Species", 
+       y = "Count")+
+  theme_minimal()
+  
+```
+
+```{r}
+#rarest trees
+least_common_trees <- most_common_trees |>
+  arrange(count)
+head(least_common_trees, 10)
+```
+
+2/3 of trees are in top 10 species.
+
+Guards
+
+```{r}
+guard_trees <- alive_trees |>
+  filter(nchar(guards) >= 1)
+ggplot(guard_trees, aes(guards)) +
+  geom_bar()+ 
+  scale_y_continuous(labels = label_comma())+
+    labs(title = "Street Tree Guards for Living Trees in NYC in 2015",
+       x = "Tree Guard Status", 
+       y = "Count")+
+  theme_minimal()
+```
+
+Health
+
+```{r}
+health_trees <- alive_trees |>
+  filter(nchar(health) >= 1)
+
+ggplot(health_trees, aes(health)) + 
+  geom_bar()+ 
+  scale_y_continuous(labels = label_comma())+
+    labs(title = "Street Tree Health among Alive Trees in NYC in 2015",
+       x = "Tree Health", 
+       y = "Count") +
+  theme_minimal()
+```
+
+Steward
+
+```{r}
+ggplot(data, (aes(x=steward))) +
+  geom_bar()+ 
+  scale_y_continuous(labels = label_comma()) + 
+  labs(title = "Unique Signs of Stewardship Observed for Street Trees in NYC in 2015",
+       x = "Unique signs of Stewardship", 
+       y = "Count")+
+  theme_minimal()
+```
+
+**Visualizations**
+
+1: Tree Stewardship and Health in Alive NYC Street Trees
+
+```{r}
+#Tree Stewardship and Health in Alive NYC Street Trees
+alive_trees$health <- factor(alive_trees$health,
+                             levels = c("Poor", "Fair", "Good"),
+                             ordered = TRUE)
+
+ggplot(alive_trees, aes(x = steward, fill = health)) +
+  geom_bar(position = "fill") +
+  labs(y = "Proportion",
+       title = "Tree Health by Stewardship Level among Living Street Trees in NYC 2015",
+       x = "Level of Stewardship")+
+  theme_minimal()
+```
+
+2: Diameter and Tree Species
+
+```{r}
+#Diameter and Tree Species
+top10diam <- most_common_trees |> slice_max(count, n = 10)
+
+top10_data <- alive_trees |> 
+  filter(spc_common %in% top10diam$spc_common)
+
+ggplot(top10_data, aes(x = reorder(spc_common, tree_dbh, median),
+                       y = tree_dbh)) +
+  geom_boxplot() +
+  coord_flip() +
+  labs(title = "Street Tree Diameter by Species (Top 10), NYC 2015",
+       x = "Tree Species",
+       y = "Tree Species")+
+  theme_minimal()
+
+```
+
+3: Curb Location and Tree Health
+
+```{r}
+#Tree Curb Proximity and guards (with health as well)
+ggplot(alive_trees, aes(x = curb_loc, fill = health)) +
+  geom_bar(position = "dodge") +
+  labs(title = "NYC Street Tree Health by Curb Location 2015",
+       y = "Proportion",
+       x = "Curb Proximity") +
+  scale_y_continuous(labels = label_comma()) + 
+  theme_minimal()
+
+```
+
+**My hypotheses:**
+
+-   Tree stewardship does not greatly affect perceived tree health.
+
+-   Curb location does not affect tree health.
+
+-   Tree diameter is affected by the tree's species.
