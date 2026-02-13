@@ -87,6 +87,7 @@ Stump Diameter
 
 ```{r}
 summary(dead_trees[c("stump_diam")])
+count(dead_trees)
 ```
 
 ```{r}

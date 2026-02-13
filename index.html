@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Street Trees in NYC</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div>
+            <h1>New York City's Street Tree Census of 2015</h1>
+            <h2>Data Source</h2>
+            <p>The data for this project was sourced from <a href="https://data.cityofnewyork.us/Environment/2015-Street-Tree-Census-Tree-Data/uvpi-gqnh/about_data"> NYC Open Data.</a> It contains tree data from the 2015 Street Tree Census, which was a citizens science project in which volunteers collected various data points about each tree found on or near a New York City street.</p>
+            <p>Because this is a citizens science project, a lot of the data was collected by volunteers. Assuming these volunteers were not trained in tree identification, there may be inconsistencies or biases in the data.</p>
+            <h3>Highlighted Variables</h3>
+            <ul>
+                <li class="var-list">tree_dbh</li>
+                    <p>This quantitative variable is the diameter of the tree at 54" above the ground (for living trees). It is measured in inches.</p>
+                <li class="var-list">stump_diam</li>
+                    <p>This quantitative variable measures the stump diameter for dead tree stumps in inches.</p>
+                <li class="var-list">curb_loc</li>
+                    <p>This categorical variable states if the tree was on the curb or offset from the curb.</p>
+                <li class="var-list">spc_common</li>
+                    <p>This categorical variable stores the common name for the tree species.</p>
+                <li class="var-list">guards</li>
+                    <p>This categorical variable states whether or not a guard is present for healthy trees and if it was useful or not useful.</p>
+                <li class="var-list">health</li>
+                    <p>This ordinal variable measures the perceived health of the tree on a scale from 'poor' to 'good'.</p>
+                <li class="var-list">steward</li>
+                    <p>This ordinal variable indicates the number of unique signs of stewardship observed for this tree. The options are `None`, `1 or 2`, and `3 or 4`.</p>
+            </ul>
+        </div>
+        <div class="images">
+            <h2>Exploratory Data Analysis</h2>
+
+            <h3>Tree Diameter</h3>
+            <img id="alive" src="images/tree.png" width="600" alt="Tree Diameter Histogram" class="alive">
+            <img id="dead" src="images/stump.png" width="600" alt="Tree Stump Histogram" class="dead" style="display:none;">
+            <p class="alive">There are 652,173 living trees in this data set. This makes up the majority of observations in the dataset.</p>
+            <p class="alive">The minimum tree diameter is 0 inches, and the maximum is 425 inches. The mean diameter is 11.17 inches.</p>
+            <p class="dead" style="display:none;">There are 17,654 dead trees in this data set. This makes up a small portion of the observations in the dataset.</p>
+            <p class="dead" style="display:none;">The minimum stump diameter is 1 inch, and the maximum is 140 inches. The mean stump diameter is 16.75 inches.</p>
+            <div class="centered">
+                <button onclick="aliveTrees()">Alive Trees</button>
+                <button onclick="deadTrees()">Dead Trees</button>
+            </div>
+
+            <h3>Curb Location</h3>
+            <img src="images/curb.png" width="600" alt="Curb Location Bar Chart">
+            <p>Most trees in this data set are located on the curb.</p>
+
+            <h3>Species</h3>
+            <img src="images/species.png" width="700" alt="Species Bar Chart">
+            <p>There are 132 different tree species in this data set. The graph above shows the distribution of the top 10 most common species including:</p>
+            <ol>
+                <li>London planetree</li>
+                <li>Honeylocust</li>
+                <li>Callery Pear</li>
+                <li>Pin Oak</li>
+                <li>Norway Maple</li>
+                <li>Littleleaf Linden</li>
+                <li>Cherry</li>
+                <li>Japanese Zelkova</li>
+                <li>Ginkgo</li>
+                <li>Sophora</li>
+            </ol>
+
+            <h3>Guard Presence</h3>
+            <img src="images/guards.png" width="600" alt="Guard Bar Chart">
+            <p>Most trees in this data set do not have a guard present. Out of the trees that do have guards, there are more helpful guards present than unhelpful ones.</p>
+
+            <h3>Health</h3>
+            <img src="images/health.png" width="600" alt="Health Bar Chart">
+            <p>Most trees in this data set are in good health. There are few trees in "fair" health, and even fewer in poor health.</p>
+
+            <h3>Tree Stewardship</h3>
+            <img src="images/stewardship.png" width="600" alt="Stewardship Bar Chart">
+            <p>Most trees in this data set have no signs of stewardship. If they do, then they are more likely to have 1 or 2 signs of stewardship.</p>
+
+        </div>
+        <div>
+            <h2>Visualizations</h2>
+
+            <h3>Tree Stewardship and Tree Health</h3>
+            <img src="images/stewardship_health.png" width="600" alt="Stewardship and Health Bar Chart">
+            <p>There does not seem to be a strong relationship between tree stewardship and tree health.</p>
+
+            <h3>Curb Location and Tree Health</h3>
+            <img src="images/curb_health.png" width="600" alt="Curb Location and Tree Health Bar Chart">
+            <p>There does not seem to be a strong relationship between curb location and tree health.</p>
+
+            <h3>Tree Diameter and Tree Species</h3>
+            <img src="images/diameter_species.png" width="600" alt="Species and Diameter Box Plot">
+            <p>There seems to be a weak relationship between tree diameter and tree species. While there is a lot of overlap in the diameter distribution for each species, some species such as the london planetree and the honeylocust have a higher median diameter than others.</p>
+        </div>
+        <div id="hypotheses" onmouseover="mouseoverHypotheses()" onmouseout="mouseoutHypotheses()">
+            <h2>Hypotheses</h2>
+            <ol>
+                <li>Tree stewardship does not greatly affect perceived tree health.</li>
+                <li>Curb location does not affect tree health.</li>
+                <li>Tree diameter is affected by the tree's species.</li>
+            </ol>
+        </div>
+    </div>
+    <script src="index.js"></script>
+</body>
+</html>
+
+<!-- Alive tree and dead tree button -->
